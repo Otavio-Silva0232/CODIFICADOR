@@ -1,0 +1,32 @@
+body{
+    display: flex;
+    justify-content: left;
+    align-items: left;
+    font-family: "Times New Roman", Times, serif;
+    background: linear-gradient(to left, rgb(88, 88, 88),rgb(162, 162, 162), rgb(0, 0, 0));
+    color: white;
+}
+
+
+input,select,button{
+    background-color: rgb(63, 63, 63);
+    color: white;
+    border: 1px solid #000000;
+    padding: 10px 20px;
+    text-align: left;
+    text-decoration: none;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+a{
+    text-decoration: none;
+    color: white;
+}
+
+#decodificar-container{
+    display: flex;
+    flex-direction: column;
+}

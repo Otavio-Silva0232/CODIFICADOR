@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Enviar Mensagem - Criptograte</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <container id="envio">
+        <h1>ENVIAR MENSAGEM</h1>
+
+        <p id="usuario"></p>
+
+        <label for="destinatario">DESTINARÁRIO:</label>
+
+        <select id="destinatario">
+            <option value="">SELECIONE O DESTINATÁRIO</option>
+        </select>
+
+        <br><br>
+
+        <label for="assunto">ASSUNTO:</label>
+   
+
+    
+        <input
+            type="text"
+            id="assunto"
+            placeholder="DIGITE O ASSUNTO"
+        >
+    
+        <br><br>
+    </container>
+
+    <container id="mensagem-container">
+        <label for="mensagem">MENSAGEM:</label>
+
+        <br>
+
+        <textarea
+            id="mensagem"
+            rows="8"
+            cols="50"
+            placeholder="DIGITE A MENSAGEM"
+        ></textarea>
+
+        <br><br>
+
+        <button id="enviar">
+            ENVIAR MENSAGEM
+        </button>
+
+        <br><br>
+
+        
+        <a href="/tela_principal/principal.html">
+            <button>
+                VOLTAR
+            </button>
+        </a>
+
+    </container>
+
+    <script src="/envio_mensagens/code.js"></script>
+
+</body>
+</html>
