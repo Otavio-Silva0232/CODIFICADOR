@@ -1,32 +1,61 @@
-body{
-    display: flex;
-    justify-content: left;
-    align-items: left;
-    font-family: "Times New Roman", Times, serif;
-    background: linear-gradient(to left, rgb(88, 88, 88),rgb(162, 162, 162), rgb(0, 0, 0));
-    color: white;
+:root {
+    --black: #080808;
+    --panel: #151515;
+    --panel-light: #202020;
+    --line: #3b3b3b;
+    --white: #f5f5f5;
+    --gray: #a6a6a6;
 }
 
+* { box-sizing: border-box; }
 
-input,select,button{
-    background-color: rgb(63, 63, 63);
-    color: white;
-    border: 1px solid #000000;
-    padding: 10px 20px;
-    text-align: left;
-    text-decoration: none;
-    font-size: 16px;
-    margin: 4px 2px;
-    cursor: pointer;
-    border-radius: 5px;
+body {
+    min-height: 100vh;
+    margin: 0;
+    display: grid;
+    grid-template-columns: minmax(280px, 0.8fr) minmax(320px, 1.2fr);
+    align-items: center;
+    gap: 22px;
+    padding: 24px max(20px, 7vw);
+    color: var(--white);
+    font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+    background: radial-gradient(circle at top right, #303030 0, transparent 38%), var(--black);
 }
 
-a{
-    text-decoration: none;
-    color: white;
-}
-
-#decodificar-container{
+conteiner {
     display: flex;
     flex-direction: column;
+    min-width: 0;
+    padding: clamp(20px, 3vw, 28px);
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4);
+}
+
+#decodificar-container { border-top: 3px solid var(--white); }
+h1 { margin: 0 0 14px; font-size: clamp(1.7rem, 3vw, 2.5rem); font-weight: 900; line-height: 1.05; }
+#usuario, #decodificar-container p { color: var(--gray); }
+
+input, button {
+    width: 100%;
+    min-height: 46px;
+    padding: 11px 13px;
+    color: var(--white);
+    background: var(--panel-light);
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    font: inherit;
+}
+
+input:focus { border-color: var(--white); outline: none; box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.12); }
+button { margin-top: 12px; color: var(--black); background: var(--white); border: 0; font-weight: 800; cursor: pointer; transition: background 160ms ease, transform 160ms ease; }
+button:hover { background: #cfcfcf; transform: translateY(-1px); }
+a { color: inherit; text-decoration: none; }
+#resultado-container { min-height: 300px; }
+#resultado { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.7; }
+
+@media (max-width: 720px) {
+    body { grid-template-columns: 1fr; padding: 24px 16px; }
+    #resultado-container { min-height: 220px; }
 }
