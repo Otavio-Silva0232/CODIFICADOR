@@ -330,36 +330,79 @@ document
             ".txt";
 
         // ====================================
-        // REGISTRO DA MENSAGEM
+        // SALVAR MENSAGEM NO BANCO
         // ====================================
 
-        const mensagensSalvas =
-            JSON.parse(
-                localStorage.getItem("mensagens")
-            ) || [];
+        let mensagemSalva;
 
-        const novaMensagem = {
+        try {
 
-            id: Date.now(),
+            const resposta =
+                await fetch("/api/mensagens", {
 
-            remetente: usuarioLogado,
+                    method: "POST",
 
-            destinatario: destino,
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
 
-            assunto: assunto,
+                    body: JSON.stringify({
 
-            nomeArquivo: nomeArquivo,
+                        remetente:
+                            usuarioLogado,
 
-            conteudo: conteudo
+                        destinatario:
+                            destino,
 
-        };
+                        assunto:
+                            assunto,
 
-        mensagensSalvas.push(novaMensagem);
+                        nomeArquivo:
+                            nomeArquivo,
 
-        localStorage.setItem(
-            "mensagens",
-            JSON.stringify(mensagensSalvas)
-        );
+                        conteudo:
+                            conteudo
+
+                    })
+
+                });
+
+
+            const resultado =
+                await resposta.json();
+
+
+            if (!resposta.ok) {
+
+                alert(
+                    resultado.erro ||
+                    "Erro ao salvar mensagem."
+                );
+
+                return;
+
+            }
+
+
+            mensagemSalva =
+                resultado.mensagem;
+
+
+        } catch (erro) {
+
+            console.error(
+                "Erro ao salvar:",
+                erro
+            );
+
+            alert(
+                "Não foi possível conectar ao banco de dados."
+            );
+
+            return;
+
+        }
 
         // ====================================
         // DOWNLOAD PARA O REMETENTE

@@ -1,0 +1,12 @@
+{
+    "name": "codificador",
+    "version": "1.0.0",
+    "description": "Sistema de mensagens criptografadas",
+    "main": "code.js",
+    "scripts": {
+        "start": "vercel dev"
+    },
+    "dependencies": {
+        "@neondatabase/serverless": "^1.0.0"
+    }
+}

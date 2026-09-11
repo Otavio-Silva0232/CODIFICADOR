@@ -5,121 +5,271 @@
 const usuarioLogado =
     localStorage.getItem("usuarioLogado");
 
+
 if (!usuarioLogado) {
-    alert("Você precisa estar logado.");
-    window.location.href = "index.html";
+
+    alert(
+        "Você precisa estar logado."
+    );
+
+    window.location.href =
+        "/index.html";
+
 }
+
 
 // ============================================
 // MOSTRAR USUÁRIO
 // ============================================
-document.getElementById("usuario").textContent =
-    "Usuário: " + usuarioLogado;
 
-// ============================================
-// PEGAR MENSAGENS
-// ============================================
-const mensagens =
-    JSON.parse(
-        localStorage.getItem("mensagens")
-    ) || [];
+document
+    .getElementById("usuario")
+    .textContent =
+        "Usuário: " + usuarioLogado;
 
-// ============================================
-// FILTRAR MENSAGENS
-// ============================================
-const mensagensRecebidas =
-    mensagens.filter(
-        mensagem =>
-            mensagem.destinatario === usuarioLogado
-    );
 
 // ============================================
 // ELEMENTO DA PÁGINA
 // ============================================
+
 const container =
     document.getElementById("mensagens");
 
-// ============================================
-// NENHUMA MENSAGEM
-// ============================================
-if (mensagensRecebidas.length === 0) {
-    container.innerHTML =
-        "<p>Nenhuma mensagem recebida.</p>";
-}
 
 // ============================================
-// MOSTRAR MENSAGENS
+// CARREGAR MENSAGENS
 // ============================================
-mensagensRecebidas.forEach(mensagem => {
+
+async function carregarMensagens() {
+
+    try {
+
+        container.innerHTML =
+            "<p>Carregando mensagens...</p>";
+
+
+        const resposta =
+            await fetch(
+                "/api/mensagens?usuario=" +
+                encodeURIComponent(usuarioLogado)
+            );
+
+
+        const resultado =
+            await resposta.json();
+
+
+        if (!resposta.ok) {
+
+            container.innerHTML =
+                "<p>Erro ao carregar mensagens.</p>";
+
+            console.error(
+                resultado.erro
+            );
+
+            return;
+
+        }
+
+
+        const mensagens =
+            resultado.mensagens || [];
+
+
+        container.innerHTML = "";
+
+
+        // ========================================
+        // NENHUMA MENSAGEM
+        // ========================================
+
+        if (mensagens.length === 0) {
+
+            container.innerHTML =
+                "<p>Nenhuma mensagem recebida.</p>";
+
+            return;
+
+        }
+
+
+        // ========================================
+        // MOSTRAR MENSAGENS
+        // ========================================
+
+        mensagens.forEach(
+            mensagem => {
+
+                const div =
+                    document.createElement("div");
+
+
+                div.className =
+                    "mensagem";
+
+
+                div.innerHTML = `
+
+                    <hr>
+
+                    <h4>
+                        ${escaparHTML(
+                            mensagem.assunto
+                        )}
+                    </h4>
+
+                    <p>
+                        <strong>Remetente:</strong>
+                        ${escaparHTML(
+                            mensagem.remetente
+                        )}
+                    </p>
+
+                    <p>
+                        <strong>Destinatário:</strong>
+                        ${escaparHTML(
+                            mensagem.destinatario
+                        )}
+                    </p>
+
+                    <p>
+                        <strong>Arquivo:</strong>
+                        ${escaparHTML(
+                            mensagem.nome_arquivo
+                        )}
+                    </p>
+
+                    <button
+                        onclick="baixarMensagem(${mensagem.id})"
+                    >
+                        Baixar arquivo
+                    </button>
+
+                    <button
+                        onclick="abrirDecodificador(${mensagem.id})"
+                    >
+                        Decodificar
+                    </button>
+
+                `;
+
+
+                container.appendChild(div);
+
+            }
+        );
+
+
+    } catch (erro) {
+
+        console.error(
+            "Erro:",
+            erro
+        );
+
+        container.innerHTML =
+            "<p>Não foi possível conectar ao servidor.</p>";
+
+    }
+
+}
+
+
+// ============================================
+// ESCAPAR HTML
+// ============================================
+
+function escaparHTML(texto) {
+
     const div =
         document.createElement("div");
 
-    div.className = "mensagem";
+    div.textContent =
+        texto;
 
-    div.innerHTML = `
-        <hr>
-        <h4>${mensagem.assunto}</h4>
+    return div.innerHTML;
 
-        <p>
-            <strong>Remetente:</strong>
-            ${mensagem.remetente}
-        </p>
+}
 
-        <p>
-            <strong>Destinatário:</strong>
-            ${mensagem.destinatario}
-        </p>
 
-        <p>
-            <strong>Arquivo:</strong>
-            ${mensagem.nomeArquivo}
-        </p>
+// ============================================
+// BUSCAR UMA MENSAGEM
+// ============================================
 
-        <button
-            onclick="baixarMensagem(${mensagem.id})"
-        >
-            Baixar arquivo
-        </button>
+async function buscarMensagem(id) {
 
-        <button
-            onclick="abrirDecodificador(${mensagem.id})"
-        >
-            Decodificar
-        </button>
+    try {
 
-    `;
+        const resposta =
+            await fetch(
+                "/api/mensagens?usuario=" +
+                encodeURIComponent(usuarioLogado)
+            );
 
-    container.appendChild(div);
 
-});
+        const resultado =
+            await resposta.json();
+
+
+        if (!resposta.ok) {
+
+            return null;
+
+        }
+
+
+        const mensagem =
+            resultado.mensagens.find(
+                item =>
+                    Number(item.id) === Number(id)
+            );
+
+
+        return mensagem || null;
+
+
+    } catch (erro) {
+
+        console.error(erro);
+
+        return null;
+
+    }
+
+}
+
 
 // ============================================
 // BAIXAR ARQUIVO
 // ============================================
 
-function baixarMensagem(id) {
-    const mensagens =
-        JSON.parse(
-            localStorage.getItem("mensagens")
-        ) || [];
+async function baixarMensagem(id) {
 
     const mensagem =
-        mensagens.find(
-            item => item.id === id
-        );
+        await buscarMensagem(id);
+
 
     if (!mensagem) {
-        alert("Mensagem não encontrada.");
+
+        alert(
+            "Mensagem não encontrada."
+        );
+
         return;
+
     }
 
+
     // ========================================
-    // VALIDAÇÃO DE DESTINATÁRIO
+    // SEGURANÇA
     // ========================================
+
     if (
         mensagem.destinatario !==
         usuarioLogado
     ) {
+
         alert(
             "Você não tem permissão para baixar esta mensagem."
         );
@@ -128,62 +278,86 @@ function baixarMensagem(id) {
 
     }
 
+
     // ========================================
     // CRIAR ARQUIVO
     // ========================================
+
     const arquivo =
         new Blob(
-            [mensagem.conteudo],
+            [
+                mensagem.conteudo
+            ],
             {
-                type: "text/plain;charset=utf-8"
+                type:
+                    "text/plain;charset=utf-8"
             }
         );
 
+
     const url =
-        URL.createObjectURL(arquivo);
+        URL.createObjectURL(
+            arquivo
+        );
+
 
     const link =
         document.createElement("a");
 
-    link.href = url;
+
+    link.href =
+        url;
+
 
     link.download =
-        mensagem.nomeArquivo;
+        mensagem.nome_arquivo;
 
-    document.body.appendChild(link);
+
+    document.body.appendChild(
+        link
+    );
+
 
     link.click();
 
-    document.body.removeChild(link);
 
-    URL.revokeObjectURL(url);
+    document.body.removeChild(
+        link
+    );
+
+
+    URL.revokeObjectURL(
+        url
+    );
+
 }
+
 
 // ============================================
 // ABRIR DECODIFICADOR
 // ============================================
 
-function abrirDecodificador(id) {
-
-    const mensagens =
-        JSON.parse(
-            localStorage.getItem("mensagens")
-        ) || [];
+async function abrirDecodificador(id) {
 
     const mensagem =
-        mensagens.find(
-            item => item.id === id
-        );
+        await buscarMensagem(id);
+
 
     if (!mensagem) {
-        alert("Mensagem não encontrada.");
+
+        alert(
+            "Mensagem não encontrada."
+        );
+
         return;
 
     }
 
+
     // ========================================
-    // VALIDAÇÃO
+    // SEGURANÇA
     // ========================================
+
     if (
         mensagem.destinatario !==
         usuarioLogado
@@ -192,17 +366,30 @@ function abrirDecodificador(id) {
         alert(
             "Você não tem permissão para decodificar esta mensagem."
         );
+
         return;
+
     }
 
-    // Guardar ID temporariamente
+
+    // ========================================
+    // GUARDAR ID
+    // ========================================
 
     localStorage.setItem(
         "mensagemParaDecodificar",
         id
     );
 
+
     window.location.href =
         "/decodificar/decodificar.html";
 
 }
+
+
+// ============================================
+// INICIAR
+// ============================================
+
+carregarMensagens();
