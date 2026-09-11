@@ -147,9 +147,9 @@ async function carregarMensagens() {
                     </button>
 
                     <button
-                        onclick="abrirDecodificador(${mensagem.id})"
+                        onclick="apagarMensagem(${mensagem.id})"
                     >
-                        Decodificar
+                        Apagar mensagem
                     </button>
 
                 `;
@@ -334,56 +334,48 @@ async function baixarMensagem(id) {
 
 
 // ============================================
-// ABRIR DECODIFICADOR
+// APAGAR MENSAGEM
 // ============================================
 
-async function abrirDecodificador(id) {
+async function apagarMensagem(id) {
 
-    const mensagem =
-        await buscarMensagem(id);
-
-
-    if (!mensagem) {
-
-        alert(
-            "Mensagem não encontrada."
-        );
+    if (!confirm("Tem certeza que deseja apagar esta mensagem?")) {
 
         return;
 
     }
 
+    try {
 
-    // ========================================
-    // SEGURANÇA
-    // ========================================
+        const resposta = await fetch("/api/mensagens", {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                id,
+                usuario: usuarioLogado
+            })
+        });
 
-    if (
-        mensagem.destinatario !==
-        usuarioLogado
-    ) {
+        const resultado = await resposta.json();
 
-        alert(
-            "Você não tem permissão para decodificar esta mensagem."
-        );
+        if (!resposta.ok) {
 
-        return;
+            alert(resultado.erro || "Não foi possível apagar a mensagem.");
+
+            return;
+
+        }
+
+        carregarMensagens();
+
+    } catch (erro) {
+
+        console.error("Erro ao apagar mensagem:", erro);
+        alert("Não foi possível conectar ao servidor.");
 
     }
-
-
-    // ========================================
-    // GUARDAR ID
-    // ========================================
-
-    localStorage.setItem(
-        "mensagemParaDecodificar",
-        id
-    );
-
-
-    window.location.href =
-        "/decodificar/decodificar.html";
 
 }
 

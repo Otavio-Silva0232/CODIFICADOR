@@ -177,6 +177,61 @@ module.exports = async function handler(req, res) {
 
 
     // ============================================
+    // DELETE - APAGAR MENSAGEM RECEBIDA
+    // ============================================
+
+    if (req.method === "DELETE") {
+
+        try {
+
+            const {
+                id,
+                usuario
+            } = req.body || {};
+
+            if (!id || !usuario) {
+
+                return res.status(400).json({
+                    sucesso: false,
+                    erro: "Mensagem ou usuário não informado."
+                });
+
+            }
+
+            const resultado = await sql`
+                DELETE FROM mensagens
+                WHERE id = ${id}
+                AND destinatario = ${usuario}
+                RETURNING id
+            `;
+
+            if (resultado.length === 0) {
+
+                return res.status(404).json({
+                    sucesso: false,
+                    erro: "Mensagem não encontrada."
+                });
+
+            }
+
+            return res.status(200).json({
+                sucesso: true
+            });
+
+        } catch (erro) {
+
+            console.error("ERRO AO APAGAR MENSAGEM:", erro);
+
+            return res.status(500).json({
+                sucesso: false,
+                erro: "Erro interno ao apagar a mensagem."
+            });
+
+        }
+    }
+
+
+    // ============================================
     // MÉTODO NÃO PERMITIDO
     // ============================================
 
