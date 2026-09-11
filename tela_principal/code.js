@@ -5,78 +5,56 @@
 const usuarioLogado =
     localStorage.getItem("usuarioLogado");
 
-
 if (!usuarioLogado) {
-
     alert("Você precisa estar logado.");
-
     window.location.href = "index.html";
-
 }
-
 
 // ============================================
 // MOSTRAR USUÁRIO
 // ============================================
-
 document.getElementById("usuario").textContent =
     "Usuário: " + usuarioLogado;
-
 
 // ============================================
 // PEGAR MENSAGENS
 // ============================================
-
 const mensagens =
     JSON.parse(
         localStorage.getItem("mensagens")
     ) || [];
 
-
 // ============================================
 // FILTRAR MENSAGENS
 // ============================================
-
 const mensagensRecebidas =
     mensagens.filter(
         mensagem =>
             mensagem.destinatario === usuarioLogado
     );
 
-
 // ============================================
 // ELEMENTO DA PÁGINA
 // ============================================
-
 const container =
     document.getElementById("mensagens");
-
 
 // ============================================
 // NENHUMA MENSAGEM
 // ============================================
-
 if (mensagensRecebidas.length === 0) {
-
     container.innerHTML =
         "<p>Nenhuma mensagem recebida.</p>";
-
 }
-
 
 // ============================================
 // MOSTRAR MENSAGENS
 // ============================================
-
 mensagensRecebidas.forEach(mensagem => {
-
-
     const div =
         document.createElement("div");
 
-
     div.className = "mensagem";
-
 
     div.innerHTML = `
         <hr>
@@ -111,49 +89,37 @@ mensagensRecebidas.forEach(mensagem => {
 
     `;
 
-
     container.appendChild(div);
 
 });
-
 
 // ============================================
 // BAIXAR ARQUIVO
 // ============================================
 
 function baixarMensagem(id) {
-
-
     const mensagens =
         JSON.parse(
             localStorage.getItem("mensagens")
         ) || [];
-
 
     const mensagem =
         mensagens.find(
             item => item.id === id
         );
 
-
     if (!mensagem) {
-
         alert("Mensagem não encontrada.");
-
         return;
-
     }
-
 
     // ========================================
     // VALIDAÇÃO DE DESTINATÁRIO
     // ========================================
-
     if (
         mensagem.destinatario !==
         usuarioLogado
     ) {
-
         alert(
             "Você não tem permissão para baixar esta mensagem."
         );
@@ -162,11 +128,9 @@ function baixarMensagem(id) {
 
     }
 
-
     // ========================================
     // CRIAR ARQUIVO
     // ========================================
-
     const arquivo =
         new Blob(
             [mensagem.conteudo],
@@ -175,20 +139,16 @@ function baixarMensagem(id) {
             }
         );
 
-
     const url =
         URL.createObjectURL(arquivo);
 
-
     const link =
         document.createElement("a");
-
 
     link.href = url;
 
     link.download =
         mensagem.nomeArquivo;
-
 
     document.body.appendChild(link);
 
@@ -196,11 +156,8 @@ function baixarMensagem(id) {
 
     document.body.removeChild(link);
 
-
     URL.revokeObjectURL(url);
-
 }
-
 
 // ============================================
 // ABRIR DECODIFICADOR
@@ -208,32 +165,25 @@ function baixarMensagem(id) {
 
 function abrirDecodificador(id) {
 
-
     const mensagens =
         JSON.parse(
             localStorage.getItem("mensagens")
         ) || [];
-
 
     const mensagem =
         mensagens.find(
             item => item.id === id
         );
 
-
     if (!mensagem) {
-
         alert("Mensagem não encontrada.");
-
         return;
 
     }
 
-
     // ========================================
     // VALIDAÇÃO
     // ========================================
-
     if (
         mensagem.destinatario !==
         usuarioLogado
@@ -242,11 +192,8 @@ function abrirDecodificador(id) {
         alert(
             "Você não tem permissão para decodificar esta mensagem."
         );
-
         return;
-
     }
-
 
     // Guardar ID temporariamente
 
@@ -254,7 +201,6 @@ function abrirDecodificador(id) {
         "mensagemParaDecodificar",
         id
     );
-
 
     window.location.href =
         "/decodificar/decodificar.html";

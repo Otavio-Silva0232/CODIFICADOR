@@ -54,7 +54,36 @@ container br { display: none; }
 input:focus, select:focus, textarea:focus { border-color: var(--white); outline: none; box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.12); }
 button { margin-top: 12px; color: var(--black); background: var(--white); border: 0; font-weight: 800; cursor: pointer; transition: background 160ms ease, transform 160ms ease; }
 button:hover { background: #cfcfcf; transform: translateY(-1px); }
+button:disabled { opacity: 0.5; cursor: wait; transform: none; }
 a { color: inherit; text-decoration: none; }
+
+#arvore-visualizacao {
+    margin-top: 14px;
+    padding: 12px;
+    overflow: hidden;
+    background: #101010;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+}
+
+.visualizacao-cabecalho { display: flex; justify-content: space-between; gap: 10px; color: var(--gray); font-size: 0.68rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; }
+.tipo-arvore { margin: 6px 0 0; color: var(--gray); font-size: 0.68rem; line-height: 1.4; }
+#mensagem-original { margin: 8px 0 0; color: var(--white); font-size: 0.75rem; line-height: 1.5; overflow-wrap: anywhere; }
+#letras-embaralhadas { display: flex; flex-wrap: wrap; gap: 4px; min-height: 25px; margin: 10px 0; }
+.letra-token { padding: 3px 6px; color: var(--black); background: var(--white); border-radius: 4px; font-size: 0.72rem; font-weight: 800; animation: aparecer 220ms ease both; }
+#arvore { min-height: 72px; overflow: auto; padding: 8px 0 2px; }
+#ordem-posordem { margin: 10px 0 0; padding-top: 8px; color: var(--gray); border-top: 1px solid var(--line); font-size: 0.68rem; line-height: 1.5; overflow-wrap: anywhere; }
+.arvore-nivel { display: flex; justify-content: center; min-width: max-content; }
+.no-grupo { display: flex; flex-direction: column; align-items: center; }
+.no-arvore { z-index: 1; display: grid; width: 28px; height: 28px; place-items: center; color: var(--black); background: var(--white); border: 2px solid #777; border-radius: 50%; font-size: 0.75rem; font-weight: 900; animation: aparecer 180ms ease both; }
+.filhos-arvore { position: relative; display: flex; justify-content: center; gap: 10px; padding-top: 22px; }
+.filhos-duplos::before { content: ""; position: absolute; top: 0; left: 50%; width: 2px; height: 11px; background: var(--gray); transform: translateX(-50%); }
+.filhos-unico::before { content: ""; position: absolute; top: 0; left: 50%; width: 2px; height: 22px; background: var(--gray); transform: translateX(-50%); }
+.conector-horizontal { position: absolute; z-index: 2; top: 10px; left: 14px; right: 14px; height: 2px; background: var(--gray); }
+.filho-arvore { position: relative; z-index: 1; display: flex; justify-content: center; }
+.filho-arvore::before { content: ""; position: absolute; top: -12px; width: 2px; height: 12px; background: var(--gray); }
+
+@keyframes aparecer { from { opacity: 0; transform: scale(0.5) translateY(5px); } to { opacity: 1; transform: scale(1) translateY(0); } }
 
 @media (max-width: 720px) {
     body { grid-template-columns: 1fr; padding: 24px 16px; }

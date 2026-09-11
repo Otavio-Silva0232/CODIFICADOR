@@ -4,9 +4,10 @@
 
 class No {
 
-    constructor(valor) {
+    constructor(valor, indice) {
 
         this.valor = valor;
+        this.indice = indice;
 
         this.esquerda = null;
         this.direita = null;
@@ -14,7 +15,6 @@ class No {
     }
 
 }
-
 
 // ============================================
 // CLASSE ARVORE
@@ -25,16 +25,67 @@ class Arvore {
     constructor() {
 
         this.raiz = null;
+        this.nos = [];
 
     }
 
+    construirPosOrdem(mensagem) {
+        const caracteres = [...mensagem];
+        this.nos = [];
+
+        const montar = (inicio, fim) => {
+            if (inicio >= fim) {
+                return null;
+            }
+
+            const indiceRaiz = fim - 1;
+            const meio = inicio + Math.floor((fim - inicio - 1) / 2);
+            const no = new No(
+                caracteres[indiceRaiz].charCodeAt(0),
+                indiceRaiz
+            );
+
+            this.nos[indiceRaiz] = no;
+            no.esquerda = montar(inicio, meio);
+            no.direita = montar(meio, indiceRaiz);
+
+            return no;
+        };
+
+        this.raiz = montar(0, caracteres.length);
+    }
+
+    codigoDoIndice(indice, no = this.raiz, caminho = "") {
+        if (no === null) {
+            return null;
+        }
+
+        if (no.indice === indice) {
+            return caminho !== "" ? caminho : "R";
+        }
+
+        const esquerda = this.codigoDoIndice(
+            indice,
+            no.esquerda,
+            caminho + "0"
+        );
+
+        if (esquerda !== null) {
+            return esquerda;
+        }
+
+        return this.codigoDoIndice(
+            indice,
+            no.direita,
+            caminho + "1"
+        );
+    }
 
     inserir(valor) {
 
         this.raiz = this._inserir(this.raiz, valor);
 
     }
-
 
     _inserir(no, valor) {
 
@@ -51,7 +102,7 @@ class Arvore {
 
         }
 
-        else if (valor > no.valor) {
+        else {
 
             no.direita =
                 this._inserir(no.direita, valor);
@@ -61,7 +112,6 @@ class Arvore {
         return no;
 
     }
-
 
     codigo(valor, no = this.raiz, caminho = "") {
 
@@ -97,7 +147,6 @@ class Arvore {
 
     }
 
-
     salvar(no, linhas) {
 
         if (no === null) {
@@ -108,16 +157,15 @@ class Arvore {
 
         }
 
-        linhas.push(String(no.valor));
-
         this.salvar(no.esquerda, linhas);
 
         this.salvar(no.direita, linhas);
 
+        linhas.push(String(no.valor));
+
     }
 
 }
-
 
 // ============================================
 // USUÁRIO LOGADO
@@ -125,7 +173,6 @@ class Arvore {
 
 const usuarioLogado =
     localStorage.getItem("usuarioLogado");
-
 
 if (!usuarioLogado) {
 
@@ -135,12 +182,10 @@ if (!usuarioLogado) {
 
 }
 
-
 // Mostrar usuário
 
 document.getElementById("usuario").textContent =
     "REMETENTE: " + usuarioLogado;
-
 
 // ============================================
 // DESTINATÁRIOS
@@ -149,12 +194,10 @@ document.getElementById("usuario").textContent =
 const destinatario =
     document.getElementById("destinatario");
 
-
 const usuarios = [
     "admin_niteroi",
     "admin_marica"
 ];
-
 
 // Só mostra o outro usuário
 
@@ -175,14 +218,13 @@ usuarios.forEach(usuario => {
 
 });
 
-
 // ============================================
 // ENVIAR
 // ============================================
 
 document
     .getElementById("enviar")
-    .addEventListener("click", function () {
+    .addEventListener("click", async function () {
 
         const destino =
             document.getElementById("destinatario").value;
@@ -192,7 +234,6 @@ document
 
         const mensagem =
             document.getElementById("mensagem").value;
-
 
         // ====================================
         // VALIDAÇÕES
@@ -206,7 +247,6 @@ document
 
         }
 
-
         if (!assunto) {
 
             alert("O assunto não pode ser vazio.");
@@ -215,7 +255,6 @@ document
 
         }
 
-
         if (!mensagem) {
 
             alert("A mensagem não pode ser vazia.");
@@ -223,7 +262,6 @@ document
             return;
 
         }
-
 
         if (mensagem.length < 10) {
 
@@ -235,22 +273,13 @@ document
 
         }
 
-
         // ====================================
         // CRIAR ÁRVORE
         // ====================================
 
         const arvore = new Arvore();
 
-
-        for (const letra of mensagem) {
-
-            arvore.inserir(
-                letra.charCodeAt(0)
-            );
-
-        }
-
+        await animarConstrucao(arvore, mensagem);
 
         // ====================================
         // GERAR CÓDIGOS
@@ -258,22 +287,17 @@ document
 
         const codigos = [];
 
-
-        for (const letra of mensagem) {
+        for (let indice = 0; indice < mensagem.length; indice++) {
 
             const codigo =
-                arvore.codigo(
-                    letra.charCodeAt(0)
-                );
+                arvore.codigoDoIndice(indice);
 
             codigos.push(codigo);
 
         }
 
-
         const codigoMensagem =
             codigos.join("|");
-
 
         // ====================================
         // SALVAR ÁRVORE
@@ -281,12 +305,10 @@ document
 
         const linhasArvore = [];
 
-
         arvore.salvar(
             arvore.raiz,
             linhasArvore
         );
-
 
         // ====================================
         // CONTEÚDO DO ARQUIVO
@@ -296,7 +318,6 @@ document
             codigoMensagem +
             "\n" +
             linhasArvore.join("\n");
-
 
         // ====================================
         // NOME DO ARQUIVO
@@ -308,7 +329,6 @@ document
             usuarioLogado +
             ".txt";
 
-
         // ====================================
         // REGISTRO DA MENSAGEM
         // ====================================
@@ -317,7 +337,6 @@ document
             JSON.parse(
                 localStorage.getItem("mensagens")
             ) || [];
-
 
         const novaMensagem = {
 
@@ -335,15 +354,12 @@ document
 
         };
 
-
         mensagensSalvas.push(novaMensagem);
-
 
         localStorage.setItem(
             "mensagens",
             JSON.stringify(mensagensSalvas)
         );
-
 
         // ====================================
         // DOWNLOAD PARA O REMETENTE
@@ -357,19 +373,15 @@ document
                 }
             );
 
-
         const url =
             URL.createObjectURL(arquivo);
-
 
         const link =
             document.createElement("a");
 
-
         link.href = url;
 
         link.download = nomeArquivo;
-
 
         document.body.appendChild(link);
 
@@ -377,9 +389,7 @@ document
 
         document.body.removeChild(link);
 
-
         URL.revokeObjectURL(url);
-
 
         // ====================================
         // FINAL
@@ -391,7 +401,6 @@ document
             "!"
         );
 
-
         // Limpar campos
 
         document.getElementById("assunto").value = "";
@@ -401,3 +410,143 @@ document
         document.getElementById("destinatario").value = "";
 
     });
+
+function esperar(tempo) {
+    return new Promise(resolve => setTimeout(resolve, tempo));
+}
+
+function embaralhar(letras) {
+    return [...letras]
+        .sort(() => Math.random() - 0.5)
+        .join("");
+}
+
+// ============================================
+// VISUALIZAÇÃO DA CONSTRUÇÃO DA ÁRVORE
+// ============================================
+async function animarConstrucao(arvore, mensagem) {
+    const visualizacao = document.getElementById("arvore-visualizacao");
+    const letras = document.getElementById("letras-embaralhadas");
+    const arvoreElemento = document.getElementById("arvore");
+    const posordemElemento = document.getElementById("ordem-posordem");
+    const mensagemOriginal = document.getElementById("mensagem-original");
+    const status = document.getElementById("visualizacao-status");
+    const contador = document.getElementById("visualizacao-contador");
+    const botao = document.getElementById("enviar");
+
+    visualizacao.hidden = false;
+    botao.disabled = true;
+    letras.innerHTML = "";
+    arvoreElemento.innerHTML = "";
+    mensagemOriginal.textContent = `Mensagem original: ${mensagem}`;
+    posordemElemento.textContent = "Pós-ordem: aguardando construção...";
+    status.textContent = "Embaralhando os caracteres...";
+    contador.textContent = "";
+
+    for (const letra of embaralhar(mensagem)) {
+        const token = document.createElement("span");
+        token.className = "letra-token";
+        token.textContent = letra === " " ? "espaco" : letra;
+        letras.appendChild(token);
+        await esperar(45);
+    }
+
+    status.textContent = "Construindo árvore binária...";
+
+    let posicao = 0;
+    for (const letra of mensagem) {
+        posicao++;
+        arvore.construirPosOrdem(mensagem.slice(0, posicao));
+        contador.textContent = `${posicao}/${mensagem.length}`;
+        renderizarArvore(arvore.raiz, arvoreElemento);
+        posordemElemento.textContent = `Nós em pós-ordem: ${obterPosOrdem(arvore.raiz)}`;
+        await esperar(115);
+    }
+
+    status.textContent = "Árvore binária concluída";
+    botao.disabled = false;
+}
+
+// ============================================
+// PERCURSO VISUAL EM PÓS-ORDEM
+// ============================================
+function obterPosOrdem(no) {
+    if (!no) {
+        return "";
+    }
+
+    const esquerda = obterPosOrdem(no.esquerda);
+    const direita = obterPosOrdem(no.direita);
+    const valor = String.fromCharCode(no.valor);
+
+    return [esquerda, direita, valor]
+        .filter(Boolean)
+        .map(item => item === " " ? "espaco" : item)
+        .join(" → ");
+}
+
+    // ============================================
+    // DESENHO DA ESTRUTURA DA ÁRVORE
+    // ============================================
+function renderizarArvore(raiz, container) {
+    container.innerHTML = "";
+
+    if (!raiz) {
+        return;
+    }
+
+    const nivel = document.createElement("div");
+    nivel.className = "arvore-nivel raiz-nivel";
+    nivel.appendChild(criarNoVisual(raiz));
+    container.appendChild(nivel);
+}
+
+// ============================================
+// DESENHO DOS NÓS E CONECTORES
+// ============================================
+function criarNoVisual(no) {
+    const grupo = document.createElement("div");
+    grupo.className = "no-grupo";
+
+    // Cria o nó atual e exibe o caractere armazenado nele.
+    const noElemento = document.createElement("span");
+    noElemento.className = "no-arvore";
+    noElemento.textContent = String.fromCharCode(no.valor);
+    noElemento.title = `Código: ${no.valor}`;
+    grupo.appendChild(noElemento);
+
+    if (no.esquerda || no.direita) {
+        const filhos = document.createElement("div");
+        const possuiDoisFilhos = no.esquerda && no.direita;
+        filhos.className = possuiDoisFilhos
+            ? "filhos-arvore filhos-duplos"
+            : "filhos-arvore filhos-unico";
+
+        if (possuiDoisFilhos) {
+            // Linha horizontal que conecta os dois filhos ao pai.
+            const conector = document.createElement("span");
+            conector.className = "conector-horizontal";
+            filhos.appendChild(conector);
+        }
+
+        // Desenha recursivamente o filho esquerdo.
+        if (no.esquerda) {
+            const esquerda = document.createElement("div");
+            esquerda.className = "filho-arvore filho-esquerdo";
+            esquerda.appendChild(criarNoVisual(no.esquerda));
+            filhos.appendChild(esquerda);
+        }
+
+        // Desenha recursivamente o filho direito.
+        if (no.direita) {
+            const direita = document.createElement("div");
+            direita.className = "filho-arvore filho-direito";
+            direita.appendChild(criarNoVisual(no.direita));
+            filhos.appendChild(direita);
+        }
+
+        grupo.appendChild(filhos);
+    }
+
+    return grupo;
+}

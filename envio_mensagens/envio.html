@@ -50,6 +50,18 @@
             placeholder="DIGITE A MENSAGEM"
         ></textarea>
 
+        <section id="arvore-visualizacao" aria-live="polite" hidden>
+            <div class="visualizacao-cabecalho">
+                <span id="visualizacao-status">Preparando a árvore...</span>
+                <span id="visualizacao-contador"></span>
+            </div>
+            <p class="tipo-arvore">Árvore binária · salva em pós-ordem para preservar a frase</p>
+            <p id="mensagem-original"></p>
+            <div id="letras-embaralhadas"></div>
+            <div id="arvore"></div>
+            <p id="ordem-posordem"></p>
+        </section>
+
         <br><br>
 
         <button id="enviar">
