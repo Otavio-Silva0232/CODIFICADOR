@@ -240,6 +240,83 @@ function iniciarDecodificacao() {
 // PROCURAR MENSAGEM
 // ============================================
 
+function decodificarConteudoOriginal(conteudo) {
+    const linhas =
+        conteudo.split(/\r?\n/);
+
+    if (
+        linhas.length < 2
+    ) {
+
+        throw new Error(
+            "O arquivo não possui uma estrutura válida."
+        );
+
+    }
+
+    const codigo =
+        linhas[0];
+
+    if (!codigo) {
+
+        throw new Error(
+            "O código da mensagem está vazio."
+        );
+
+    }
+
+    const linhasArvore =
+        linhas.slice(1);
+
+    const arvore =
+        new Arvore();
+
+    arvore.carregar(
+        linhasArvore
+    );
+
+    if (!arvore.raiz) {
+
+        throw new Error(
+            "Não foi possível reconstruir a árvore."
+        );
+
+    }
+
+    let mensagem = "";
+
+    const caminhos =
+        codigo.split("|");
+
+    for (
+        const caminho of caminhos
+    ) {
+
+        const numero =
+            arvore.encontrar(
+                caminho
+            );
+
+        if (
+            numero === null
+        ) {
+
+            throw new Error(
+                "Foi encontrado um caminho inválido na árvore."
+            );
+
+        }
+
+        mensagem +=
+            String.fromCharCode(
+                numero
+            );
+
+    }
+
+    return mensagem;
+}
+
 // ============================================
 // DECODIFICAR ARQUIVO
 // ============================================
@@ -267,21 +344,26 @@ async function decodificarArquivo(
                 throw new Error("Chave de acesso inválida ou mensagem não encontrada.");
             }
 
-            mostrarMensagem(resultado.mensagens[0].conteudo);
+            const mensagemOriginal = decodificarConteudoOriginal(resultado.mensagens[0].conteudo);
+            mostrarMensagem(mensagemOriginal);
             return;
 
         }
 
-        // ====================================
-        // SEPARAR LINHAS
-        // ====================================
+        const mensagemOriginal = decodificarConteudoOriginal(texto);
+        mostrarMensagem(mensagemOriginal);
 
-        const linhas =
-            conteudo.split(/\r?\n/);
+    }
 
-        if (
-            linhas.length < 2
-        ) {
+    catch (erro) {
+
+        mostrarErro(
+            erro.message
+        );
+
+    }
+
+}
 
             throw new Error(
                 "O arquivo não possui uma estrutura válida."
@@ -289,91 +371,8 @@ async function decodificarArquivo(
 
         }
 
-        // ====================================
-        // PRIMEIRA LINHA
-        // CÓDIGO
-        // ====================================
-
-        const codigo =
-            linhas[0];
-
-        if (!codigo) {
-
-            throw new Error(
-                "O código da mensagem está vazio."
-            );
-
-        }
-
-        // ====================================
-        // RESTANTE
-        // ÁRVORE
-        // ====================================
-
-        linhasArvore =
-            linhas.slice(1);
-
-        // ====================================
-        // CRIAR ÁRVORE
-        // ====================================
-
-        const arvore =
-            new Arvore();
-
-        arvore.carregar(
-            linhasArvore
-        );
-
-        if (!arvore.raiz) {
-
-            throw new Error(
-                "Não foi possível reconstruir a árvore."
-            );
-
-        }
-
-        // ====================================
-        // DECODIFICAR
-        // ====================================
-
-        let mensagem = "";
-
-        const caminhos =
-            codigo.split("|");
-
-        for (
-            const caminho of caminhos
-        ) {
-
-            const numero =
-                arvore.encontrar(
-                    caminho
-                );
-
-            if (
-                numero === null
-            ) {
-
-                throw new Error(
-                    "Foi encontrado um caminho inválido na árvore."
-                );
-
-            }
-
-            mensagem +=
-                String.fromCharCode(
-                    numero
-                );
-
-        }
-
-        // ====================================
-        // MOSTRAR RESULTADO
-        // ====================================
-
-        mostrarMensagem(
-            mensagem
-        );
+        const mensagemOriginal = decodificarConteudoOriginal(conteudo);
+        mostrarMensagem(mensagemOriginal);
 
     }
 
