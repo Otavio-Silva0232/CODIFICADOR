@@ -327,59 +327,67 @@ async function decodificarArquivo(
 
     try {
 
-        const texto = conteudo.trim();
+        const texto = String(conteudo || "")
+            .replace(/^\uFEFF/, "")
+            .trim();
+
+        if (!texto) {
+            throw new Error("O arquivo está vazio.");
+        }
 
         if (texto.startsWith("msg_")) {
 
-            const resposta = await fetch(
-                "/api/mensagens?usuario=" +
-                encodeURIComponent(usuarioLogado) +
-                "&token=" +
-                encodeURIComponent(texto)
-            );
+            let resposta;
 
-            const resultado = await resposta.json();
-
-            if (!resposta.ok || !resultado.mensagens || resultado.mensagens.length === 0) {
-                throw new Error("Chave de acesso inválida ou mensagem não encontrada.");
+            try {
+                resposta = await fetch(
+                    "/api/mensagens?usuario=" +
+                    encodeURIComponent(usuarioLogado) +
+                    "&token=" +
+                    encodeURIComponent(texto)
+                );
+            } catch (erro) {
+                throw new Error("Não foi possível conectar com a API para buscar a mensagem.");
             }
 
-            const mensagemOriginal = decodificarConteudoOriginal(resultado.mensagens[0].conteudo);
+            let resultado;
+
+            try {
+                resultado = await resposta.json();
+            } catch (erro) {
+                throw new Error("A API respondeu em formato inválido.");
+            }
+
+            const mensagens = Array.isArray(resultado.mensagens)
+                ? resultado.mensagens
+                : (resultado.mensagens ? [resultado.mensagens] : []);
+
+            if (!resposta.ok || mensagens.length === 0) {
+                throw new Error("Chave de acesso inválida ou mensagem não encontrada para este usuário.");
+            }
+
+            const mensagemOriginal = decodificarConteudoOriginal(mensagens[0].conteudo);
             mostrarMensagem(mensagemOriginal);
             return;
 
         }
 
-        const mensagemOriginal = decodificarConteudoOriginal(texto);
-        mostrarMensagem(mensagemOriginal);
-
-    }
-
-    catch (erro) {
-
-        mostrarErro(
-            erro.message
-        );
-
-    }
-
-}
-
-            throw new Error(
-                "O arquivo não possui uma estrutura válida."
-            );
-
+        try {
+            const mensagemOriginal = decodificarConteudoOriginal(texto);
+            mostrarMensagem(mensagemOriginal);
+            return;
+        } catch (erro) {
+            throw new Error("Arquivo inválido. Ele não é uma chave de acesso nem um arquivo antigo de mensagem.");
         }
 
-        const mensagemOriginal = decodificarConteudoOriginal(conteudo);
-        mostrarMensagem(mensagemOriginal);
-
     }
 
     catch (erro) {
 
         mostrarErro(
-            erro.message
+            erro && erro.message
+                ? erro.message
+                : "Não foi possível decodificar o arquivo."
         );
 
     }
