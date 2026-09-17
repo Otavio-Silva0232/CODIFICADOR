@@ -286,7 +286,7 @@ async function baixarMensagem(id) {
     const arquivo =
         new Blob(
             [
-                mensagem.conteudo
+                mensagem.nome_arquivo
             ],
             {
                 type:

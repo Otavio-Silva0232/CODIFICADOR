@@ -134,12 +134,38 @@ module.exports = async function handler(req, res) {
 
             const usuario =
                 req.query.usuario;
+            const token =
+                req.query.token;
 
             if (!usuario) {
 
                 return res.status(400).json({
                     sucesso: false,
                     erro: "Usuário não informado."
+                });
+
+            }
+
+            if (token) {
+
+                const mensagem = await sql`
+                    SELECT
+                        id,
+                        remetente,
+                        destinatario,
+                        assunto,
+                        nome_arquivo,
+                        conteudo,
+                        criado_em
+                    FROM mensagens
+                    WHERE destinatario = ${usuario}
+                    AND nome_arquivo = ${token}
+                    LIMIT 1
+                `;
+
+                return res.status(200).json({
+                    sucesso: true,
+                    mensagens: mensagem
                 });
 
             }

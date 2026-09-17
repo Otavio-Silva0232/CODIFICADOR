@@ -130,36 +130,8 @@ const usuarios = [
     "admin_marica"
 ];
 
-const CHAVE_EXTRA = "CriptograteSeguranca";
-
-function xorTexto(texto, chave) {
-    const textoBytes = new TextEncoder().encode(texto);
-    const chaveBytes = new TextEncoder().encode(chave);
-    let resultado = "";
-
-    for (let indice = 0; indice < textoBytes.length; indice++) {
-        resultado += String.fromCharCode(
-            textoBytes[indice] ^ chaveBytes[indice % chaveBytes.length]
-        );
-    }
-
-    return resultado;
-}
-
-function gerarChecksum(texto) {
-    let total = 0;
-
-    for (let indice = 0; indice < texto.length; indice++) {
-        total += texto.charCodeAt(indice);
-    }
-
-    return total.toString(16).padStart(4, "0");
-}
-
-function aplicarCamadaExtra(texto) {
-    const textoEmbaralhado = xorTexto(texto, CHAVE_EXTRA);
-    const payload = btoa(textoEmbaralhado);
-    return `CRP2|${gerarChecksum(texto)}|${payload}`;
+function gerarChaveAcesso() {
+    return `msg_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
 }
 
 // Só mostra o outro usuário
@@ -277,16 +249,16 @@ document
         // CONTEÚDO DO ARQUIVO
         // ====================================
 
-        const payloadOriginal =
+        const conteudo =
             codigoMensagem +
             "\n" +
             linhasArvore.join("\n");
 
-        const conteudo = aplicarCamadaExtra(payloadOriginal);
-
         // ====================================
         // NOME DO ARQUIVO
         // ====================================
+
+        const chaveAcesso = gerarChaveAcesso();
 
         const nomeArquivo =
             assunto +
@@ -322,7 +294,7 @@ document
                             assunto,
 
                         nomeArquivo:
-                            nomeArquivo,
+                            chaveAcesso,
 
                         conteudo:
                             conteudo
@@ -369,7 +341,7 @@ document
 
         const arquivo =
             new Blob(
-                [conteudo],
+                [chaveAcesso],
                 {
                     type: "text/plain;charset=utf-8"
                 }
