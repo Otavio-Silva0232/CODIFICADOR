@@ -1,5 +1,10 @@
 # Sistema de Mensagens Codificadas
 
+Otávio Silva Oliveira\
+Mateus Oliveira do Nascimento\
+David Pereira de Sá Silva\
+Paulo Alain de Moura Querette
+
 Aplicação web para troca de mensagens entre usuários, em que cada mensagem é codificada usando uma **árvore binária construída a partir dos próprios caracteres do texto** (semelhante ao princípio de uma árvore de Huffman simplificada). A mensagem codificada fica armazenada no banco de dados, e o destinatário recebe apenas um arquivo `.txt` contendo uma **chave de acesso**, usada para buscar a mensagem no banco e decodificá-la.
 
 ## Funcionalidades
