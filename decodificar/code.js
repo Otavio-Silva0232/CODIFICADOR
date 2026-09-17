@@ -137,6 +137,55 @@ class Arvore {
 
 }
 
+const CHAVE_EXTRA = "CriptograteSeguranca";
+
+function xorTexto(texto, chave) {
+    const textoBytes = new TextEncoder().encode(texto);
+    const chaveBytes = new TextEncoder().encode(chave);
+    let resultado = "";
+
+    for (let indice = 0; indice < textoBytes.length; indice++) {
+        resultado += String.fromCharCode(
+            textoBytes[indice] ^ chaveBytes[indice % chaveBytes.length]
+        );
+    }
+
+    return resultado;
+}
+
+function gerarChecksum(texto) {
+    let total = 0;
+
+    for (let indice = 0; indice < texto.length; indice++) {
+        total += texto.charCodeAt(indice);
+    }
+
+    return total.toString(16).padStart(4, "0");
+}
+
+function extrairCamadaExtra(conteudo) {
+    if (!conteudo.startsWith("CRP2|")) {
+        return { texto: conteudo };
+    }
+
+    const partes = conteudo.split("|");
+
+    if (partes.length !== 3) {
+        throw new Error("Arquivo com camada extra inválida.");
+    }
+
+    const [, checksumEsperado, payloadBase64] = partes;
+    const textoEmbaralhado = atob(payloadBase64);
+    const textoOriginal = xorTexto(textoEmbaralhado, CHAVE_EXTRA);
+    const checksumAtual = gerarChecksum(textoOriginal);
+
+    if (checksumAtual !== checksumEsperado) {
+        throw new Error("O arquivo foi alterado ou a camada extra não foi validada.");
+    }
+
+    return { texto: textoOriginal };
+}
+
 // ============================================
 // VERIFICAR LOGIN
 // ============================================
@@ -249,12 +298,9 @@ function decodificarArquivo(
 
     try {
 
-        // ====================================
-        // SEPARAR LINHAS
-        // ====================================
-
+        const textoProcessado = extrairCamadaExtra(conteudo);
         const linhas =
-            conteudo.split(/\r?\n/);
+            textoProcessado.texto.split(/\r?\n/);
 
         if (
             linhas.length < 2
@@ -287,7 +333,7 @@ function decodificarArquivo(
         // ÁRVORE
         // ====================================
 
-        const linhasArvore =
+        linhasArvore =
             linhas.slice(1);
 
         // ====================================
