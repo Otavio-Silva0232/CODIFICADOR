@@ -420,13 +420,6 @@ function mostrarMensagem(
 
     resultado.appendChild(textoMensagem);
 
-    // ========================================
-    // LIMPAR ID ANTIGO
-    // ========================================
-    localStorage.removeItem(
-        "mensagemParaDecodificar"
-    );
-
 }
 
 // ============================================

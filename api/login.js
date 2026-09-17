@@ -50,7 +50,6 @@ module.exports = async function handler(req, res) {
         const resultado = await sql`
 
             SELECT
-                id,
                 usuario
 
             FROM usuarios

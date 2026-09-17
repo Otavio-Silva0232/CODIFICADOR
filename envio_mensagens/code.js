@@ -25,13 +25,11 @@ class Arvore {
     constructor() {
 
         this.raiz = null;
-        this.nos = [];
 
     }
 
     construirPosOrdem(mensagem) {
         const caracteres = [...mensagem];
-        this.nos = [];
 
         const montar = (inicio, fim) => {
             if (inicio >= fim) {
@@ -45,7 +43,6 @@ class Arvore {
                 indiceRaiz
             );
 
-            this.nos[indiceRaiz] = no;
             no.esquerda = montar(inicio, meio);
             no.direita = montar(meio, indiceRaiz);
 
@@ -79,72 +76,6 @@ class Arvore {
             no.direita,
             caminho + "1"
         );
-    }
-
-    inserir(valor) {
-
-        this.raiz = this._inserir(this.raiz, valor);
-
-    }
-
-    _inserir(no, valor) {
-
-        if (no === null) {
-
-            return new No(valor);
-
-        }
-
-        if (valor < no.valor) {
-
-            no.esquerda =
-                this._inserir(no.esquerda, valor);
-
-        }
-
-        else {
-
-            no.direita =
-                this._inserir(no.direita, valor);
-
-        }
-
-        return no;
-
-    }
-
-    codigo(valor, no = this.raiz, caminho = "") {
-
-        if (no === null) {
-
-            return null;
-
-        }
-
-        if (no.valor === valor) {
-
-            return caminho !== ""
-                ? caminho
-                : "R";
-
-        }
-
-        if (valor < no.valor) {
-
-            return this.codigo(
-                valor,
-                no.esquerda,
-                caminho + "0"
-            );
-
-        }
-
-        return this.codigo(
-            valor,
-            no.direita,
-            caminho + "1"
-        );
-
     }
 
     salvar(no, linhas) {
@@ -333,8 +264,6 @@ document
         // SALVAR MENSAGEM NO BANCO
         // ====================================
 
-        let mensagemSalva;
-
         try {
 
             const resposta =
@@ -383,10 +312,6 @@ document
                 return;
 
             }
-
-
-            mensagemSalva =
-                resultado.mensagem;
 
 
         } catch (erro) {
